@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FlightChallenge": {
+      "commandName": "Project",
+      "commandLineArgs": "1395-10-11 1396-01-25 1"
+    }
+  }
+}
