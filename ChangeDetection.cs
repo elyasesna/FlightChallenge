@@ -13,38 +13,32 @@ namespace FlightChallenge
 			_db = db;
 		}
 
-		public IEnumerable<FlightOutput> DetectChanges(DateOnly startDate, DateOnly endDate, int agencyId)
+		public async Task<IEnumerable<FlightOutput>> DetectChanges(DateOnly startDate, DateOnly endDate, int agencyId)
 		{
-			var routes = _db.Routes
+			var routes = await _db.Routes
 				.AsNoTracking()
 				.Where(f => f.DepartureDate >= startDate && f.DepartureDate <= endDate)
 				.Select(p => p.RouteId)
-				.ToList();
+				.ToListAsync();
 
 			if (routes.Count == 0)
 			{
 				return [];
 			}
 
-			var subscribedRoutes = _db.Subscriptions
+			var subscribedRoutesq = _db.Subscriptions
 			  .AsNoTracking()
-			  .Where(s => s.AgencyId == agencyId)
-			  .ToList();
+			  .Where(s => s.AgencyId == agencyId);
 
-			if (subscribedRoutes.Count == 0)
-			{
-				return [];
-			}
-
-			var flights = _db.Flights
+			var flightsq = _db.Flights
 				.AsNoTracking()
 				.Include(f => f.Route)
-				.Where(f => routes.Contains(f.RouteId))
-				.ToList();
+				.Where(f => routes.Contains(f.RouteId));
 
-			flights = flights
-				.Where(f => subscribedRoutes.Any(sr => sr.OriginCityId == f.Route.OriginCityId && sr.DestinationCityId == f.Route.DestinationCityId))
-				.ToList();
+			var flights = await (from f in flightsq
+							  join s in subscribedRoutesq
+							  on new { f.Route.OriginCityId, f.Route.DestinationCityId } equals new { s.OriginCityId, s.DestinationCityId }
+							  select f).ToListAsync();
 
 			// Group flights by route and departure time (rounded to nearest 30 minutes)
 			var flightGroups = flights

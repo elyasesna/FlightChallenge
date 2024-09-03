@@ -16,6 +16,7 @@ namespace FlightChallenge
 		}
 	}
 
+	[Index("DepartureDate", "OriginCityId", "DestinationCityId")]
 	public class Route
 	{
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]

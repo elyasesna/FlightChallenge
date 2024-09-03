@@ -4,7 +4,7 @@ namespace FlightChallenge
 {
 	internal class Program
 	{
-		static void Main(string[] args)
+		static async Task Main(string[] args)
 		{
 			if (args.Length != 3)
 			{
@@ -24,7 +24,7 @@ namespace FlightChallenge
 			var detector = new ChangeDetection(db);
 			var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-			var result = detector.DetectChanges(startDate, endDate, agencyId);
+			var result = await detector.DetectChanges(startDate, endDate, agencyId);
 
 			stopwatch.Stop();
 			Console.WriteLine($"Execution Time: {stopwatch.ElapsedMilliseconds} ms, found {result.Count()} options");
